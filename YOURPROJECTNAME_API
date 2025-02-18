@@ -1,0 +1,16 @@
+#pragma once
+
+#include "CoreMinimal.h"
+#include "GameFramework/GameModeBase.h"
+#include "MyGameMode.generated.h"
+
+UCLASS()
+class YOURPROJECTNAME_API AMyGameMode : public AGameModeBase
+{
+    GENERATED_BODY()
+
+public:
+    // 通过蓝图或代码调用该函数生成Actor
+    UFUNCTION(BlueprintCallable, Category = "Spawning")
+    void SpawnMyActor();
+};
