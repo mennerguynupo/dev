@@ -1,0 +1,58 @@
+<?php
+// 定义接口
+interface Shape {
+    public function area();
+}
+
+// 抽象类实现接口
+abstract class BaseShape implements Shape {
+    protected $color;
+    
+    public function __construct($color = "red") {
+        $this->color = $color;
+    }
+    
+    public function getColor() {
+        return $this->color;
+    }
+}
+
+// 圆形类
+class Circle extends BaseShape {
+    private $radius;
+    
+    public function __construct($radius, $color = "red") {
+        parent::__construct($color);
+        $this->radius = $radius;
+    }
+    
+    public function area() {
+        return pi() * $this->radius * $this->radius;
+    }
+}
+
+// 矩形类
+class Rectangle extends BaseShape {
+    private $width, $height;
+    
+    public function __construct($width, $height, $color = "red") {
+        parent::__construct($color);
+        $this->width = $width;
+        $this->height = $height;
+    }
+    
+    public function area() {
+        return $this->width * $this->height;
+    }
+}
+
+// 测试代码
+$shapes = [
+    new Circle(5, "blue"),
+    new Rectangle(4, 6, "green")
+];
+
+foreach ($shapes as $shape) {
+    echo "颜色: " . $shape->getColor() . ", 面积: " . $shape->area() . "\n";
+}
+?>
