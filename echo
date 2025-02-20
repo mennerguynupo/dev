@@ -1,0 +1,6 @@
+#!/bin/bash
+files=(*)
+echo "当前目录下共有 ${#files[@]} 个文件:"
+for file in "${files[@]}"; do
+    echo "$file"
+done
