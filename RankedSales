@@ -1,0 +1,12 @@
+WITH RankedSales AS (
+    SELECT 
+        SalesPerson,
+        SalesAmount,
+        ROW_NUMBER() OVER (PARTITION BY SalesPerson ORDER BY SalesAmount DESC) AS Rank
+    FROM Sales
+)
+SELECT 
+    SalesPerson, 
+    SalesAmount
+FROM RankedSales
+WHERE Rank = 1;
