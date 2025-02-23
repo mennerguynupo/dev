@@ -1,0 +1,6 @@
+const message = 'Hello, Web3!';
+const signedMessage = web3.eth.accounts.sign(message, 'YOUR_PRIVATE_KEY');
+console.log('Signed Message:', signedMessage);
+
+const recoveredAddress = web3.eth.accounts.recover(signedMessage);
+console.log('Recovered Address:', recoveredAddress);
