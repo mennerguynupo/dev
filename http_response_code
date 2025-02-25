@@ -1,0 +1,72 @@
+<?php
+// 简易 JWT 实现（仅供参考，非生产级安全方案）
+class Auth {
+    private static $secret = 'mysecretkey';
+
+    public static function generateToken($payload) {
+        $header = json_encode(['alg' => 'HS256', 'typ' => 'JWT']);
+        $payload = json_encode($payload);
+        $base64UrlHeader = self::base64UrlEncode($header);
+        $base64UrlPayload = self::base64UrlEncode($payload);
+        $signature = hash_hmac('sha256', $base64UrlHeader . "." . $base64UrlPayload, self::$secret, true);
+        $base64UrlSignature = self::base64UrlEncode($signature);
+        return $base64UrlHeader . "." . $base64UrlPayload . "." . $base64UrlSignature;
+    }
+
+    public static function verifyToken($token) {
+        $parts = explode('.', $token);
+        if(count($parts) !== 3) return false;
+        list($header, $payload, $signature) = $parts;
+        $expectedSignature = self::base64UrlEncode(hash_hmac('sha256', "$header.$payload", self::$secret, true));
+        if($expectedSignature !== $signature) return false;
+        return json_decode(self::base64UrlDecode($payload), true);
+    }
+
+    private static function base64UrlEncode($data) {
+        return rtrim(strtr(base64_encode($data), '+/', '-_'), '=');
+    }
+
+    private static function base64UrlDecode($data) {
+        return base64_decode(strtr($data, '-_', '+/'));
+    }
+}
+
+// 模拟的用户数据
+$users = [
+    'admin' => 'password123',
+    'user1' => 'pass456'
+];
+
+header('Content-Type: application/json');
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // 登录接口，接收 JSON 格式用户名和密码
+    $input = json_decode(file_get_contents('php://input'), true);
+    $username = $input['username'] ?? '';
+    $password = $input['password'] ?? '';
+
+    if (isset($users[$username]) && $users[$username] === $password) {
+        $token = Auth::generateToken(['username' => $username, 'iat' => time()]);
+        echo json_encode(['token' => $token]);
+    } else {
+        http_response_code(401);
+        echo json_encode(['error' => 'Invalid credentials']);
+    }
+} else if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    // 受保护接口，需要在请求头中携带 Bearer Token
+    $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
+    if (preg_match('/Bearer\s(\S+)/', $authHeader, $matches)) {
+        $token = $matches[1];
+        $payload = Auth::verifyToken($token);
+        if ($payload) {
+            echo json_encode(['message' => 'Access granted', 'user' => $payload['username']]);
+        } else {
+            http_response_code(403);
+            echo json_encode(['error' => 'Invalid token']);
+        }
+    } else {
+        http_response_code(401);
+        echo json_encode(['error' => 'No token provided']);
+    }
+}
+?>
