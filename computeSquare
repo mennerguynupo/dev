@@ -1,0 +1,19 @@
+import scala.concurrent._
+import ExecutionContext.Implicits.global
+import scala.util.{Success, Failure}
+
+object FutureExample extends App {
+  def computeSquare(n: Int): Future[Int] = Future {
+    Thread.sleep(500)
+    n * n
+  }
+
+  val f = computeSquare(5)
+  f.onComplete {
+    case Success(result) => println(s"Square is $result")
+    case Failure(e) => println("An error has occurred: " + e.getMessage)
+  }
+
+  // 保持 JVM 活动一段时间以等待异步结果
+  Thread.sleep(1000)
+}
