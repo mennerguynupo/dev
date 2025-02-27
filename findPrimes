@@ -1,0 +1,38 @@
+package main
+
+import (
+    "fmt"
+    "math"
+)
+
+// 判断质数函数
+func isPrime(n int) bool {
+    if n < 2 {
+        return false
+    }
+    for i := 2; i <= int(math.Sqrt(float64(n))); i++ {
+        if n % i == 0 {
+            return false
+        }
+    }
+    return true
+}
+
+// 工作函数，将质数发送到 channel
+func findPrimes(start, end int, ch chan<- int) {
+    for i := start; i <= end; i++ {
+        if isPrime(i) {
+            ch <- i
+        }
+    }
+    close(ch)
+}
+
+func main() {
+    ch := make(chan int)
+    go findPrimes(1, 100, ch)
+    for prime := range ch {
+        fmt.Printf("%d ", prime)
+    }
+    fmt.Println()
+}
