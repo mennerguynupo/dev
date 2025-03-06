@@ -1,0 +1,27 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+# 创建一个示例 DataFrame
+data = {
+    '日期': pd.date_range(start='2025-01-01', periods=10, freq='D'),
+    '销售额': [100, 150, 120, 130, 160, 170, 180, 190, 200, 210]
+}
+df = pd.DataFrame(data)
+
+# 保存为 CSV 文件
+df.to_csv("sales.csv", index=False)
+print("CSV 文件已保存。")
+
+# 读取 CSV 文件
+df_read = pd.read_csv("sales.csv")
+print("读取到的 CSV 数据:")
+print(df_read)
+
+# 绘图
+plt.figure(figsize=(8,4))
+plt.plot(pd.to_datetime(df_read['日期']), df_read['销售额'], marker='o')
+plt.title("销售额趋势")
+plt.xlabel("日期")
+plt.ylabel("销售额")
+plt.grid(True)
+plt.show()
