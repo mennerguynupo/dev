@@ -1,0 +1,23 @@
+use tokio::time::{sleep, Duration};
+
+async fn task(n: u32) -> u32 {
+    println!("Task {} 开始", n);
+    sleep(Duration::from_secs(1)).await;
+    println!("Task {} 完成", n);
+    n * n
+}
+
+#[tokio::main]
+async fn main() {
+    let mut handles = vec![];
+    for i in 0..10 {
+        handles.push(tokio::spawn(task(i)));
+    }
+    
+    for handle in handles {
+        match handle.await {
+            Ok(result) => println!("结果：{}", result),
+            Err(e) => eprintln!("任务失败: {:?}", e),
+        }
+    }
+}
