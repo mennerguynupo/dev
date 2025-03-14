@@ -1,0 +1,75 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract MultiSigWallet {
+    address[] public owners;
+    uint public required;
+    
+    struct Transaction {
+        address to;
+        uint value;
+        bytes data;
+        bool executed;
+    }
+    Transaction[] public transactions;
+    mapping(uint => mapping(address => bool)) public confirmations;
+
+    modifier onlyOwner() {
+        bool isOwner = false;
+        for(uint i = 0; i < owners.length; i++){
+            if(owners[i] == msg.sender) {
+                isOwner = true;
+                break;
+            }
+        }
+        require(isOwner, "Not an owner");
+        _;
+    }
+    
+    constructor(address[] memory _owners, uint _required) {
+        require(_owners.length > 0, "Owners required");
+        require(_required > 0 && _required <= _owners.length, "Invalid required number");
+        owners = _owners;
+        required = _required;
+    }
+    
+    // 提交交易
+    function submitTransaction(address to, uint value, bytes memory data) public onlyOwner returns (uint txIndex) {
+        txIndex = transactions.length;
+        transactions.push(Transaction({
+            to: to,
+            value: value,
+            data: data,
+            executed: false
+        }));
+    }
+    
+    // 确认交易
+    function confirmTransaction(uint txIndex) public onlyOwner {
+        require(txIndex < transactions.length, "Tx does not exist");
+        require(!confirmations[txIndex][msg.sender], "Already confirmed");
+        confirmations[txIndex][msg.sender] = true;
+    }
+    
+    // 执行交易
+    function executeTransaction(uint txIndex) public onlyOwner {
+        require(txIndex < transactions.length, "Tx does not exist");
+        Transaction storage transaction = transactions[txIndex];
+        require(!transaction.executed, "Tx already executed");
+
+        uint count = 0;
+        for(uint i = 0; i < owners.length; i++){
+            if(confirmations[txIndex][owners[i]]) {
+                count += 1;
+            }
+        }
+        require(count >= required, "Not enough confirmations");
+
+        transaction.executed = true;
+        (bool success, ) = transaction.to.call{value: transaction.value}(transaction.data);
+        require(success, "Tx failed");
+    }
+    
+    // 接收 ETH
+    receive() external payable {}
+}
