@@ -1,0 +1,59 @@
+@RestController
+@RequestMapping("admin")
+/**
+ * 注解方式生成日志对象，指定topic生成对象类名
+ */
+@Slf4j(topic = "AdminController")
+@Api(value = "用户登录模块", tags = "用户登录模块")
+public class AdminController {
+
+    @Autowired
+    HttpServletRequest request;
+
+    @Autowired
+    private CerePlatformUserService cerePlatformUserService;
+
+    @Autowired
+    private CerePlatformPermissionService cerePlatformPermissionService;
+
+    @Autowired
+    private StringRedisService stringRedisService;
+
+    @Autowired
+    private MiaoxinMessageService miaoxinMessageService;
+
+    @Autowired
+    private CereRedisKeyServcice cereRedisKeyServcice;
+
+    @Autowired
+    private UserRedisService userRedisService;
+
+    @Autowired
+    private CereShopCheckService cereShopCheckService;
+
+    @Value("${globalAdminPhone}")
+    private String globalAdminPhone;
+
+    /* 记录发送二次隐私认证的验证码的时间 */
+    private static final String PRIVACY_CODE_SEND_TIME = "privacy_code_send_time_";
+
+    /* 超过次数 */
+    private static final String PRIVACY_BEYOND_COUNT = "privacy_beyond_count_";
+
+    /* 隐私开关 */
+    private static final String PRIVACY_SHOW_SWITCH = "privacy_show_switch_";
+
+    /* 记录发送修改管理员手机号的验证码的时间 */
+    private static final String UPDATE_PHONE_CODE_SEND_TIME = "update_phone_code_send_time";
+
+    /* 修改管理员手机号-发送验证码-超过次数 */
+    private static final String UPDATE_PHONE_BEYOND_COUNT = "update_phone_beyond_count";
+
+    /**
+     * 平台账户登录
+     *
+     * @param param 封装json对象
+     * @return
+     */
+    @PostMapping(value = "login")
+    @ApiOperation(value = "平台账户登
