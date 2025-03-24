@@ -1,0 +1,15 @@
+use std::thread;
+use std::time::Duration;
+
+fn main() {
+    let handles: Vec<_> = (0..5).map(|i| {
+        thread::spawn(move || {
+            thread::sleep(Duration::from_millis(500 * i));
+            println!("Thread {} finished", i);
+        })
+    }).collect();
+
+    for handle in handles {
+        handle.join().unwrap();
+    }
+}
