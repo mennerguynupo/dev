@@ -1,0 +1,9 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+
+data = {"Year": [2018, 2019, 2020, 2021], "Revenue": [10, 15, 20, 25]}
+df = pd.DataFrame(data)
+
+df.plot(x="Year", y="Revenue", kind="line", marker="o")
+plt.title("Company Revenue Over Time")
+plt.show()
