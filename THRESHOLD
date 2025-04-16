@@ -1,0 +1,9 @@
+#!/bin/bash
+THRESHOLD=80
+while true; do
+    usage=$(free | awk '/Mem/ {printf("%.0f", $3/$2 * 100)}')
+    if [ "$usage" -gt "$THRESHOLD" ]; then
+        echo "Memory usage warning: $usage%" | mail -s "High Memory Alert" you@example.com
+    fi
+    sleep 60
+done
